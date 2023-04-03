@@ -22,6 +22,10 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
         # 此处若是不做设置，默认图片大小为：792X612, dpi=96
         zoom_x = 1 #(1.33333333-->1056x816)   (2-->1584x1224)
         zoom_y = 1
+
+        zoom_x = 3 #(1.33333333-->1056x816)   (2-->1584x1224)
+        zoom_y = 3
+
         mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate) # 缩放系数1.3在每个维度  .prerotate(rotate)是执行一个旋转
         rect = page.rect                         # 页面大小
 
@@ -68,21 +72,33 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
 def image_compose():
     IMAGES_PATH = imagePath
     IMAGES_FORMAT = ['.png']  # 图片格式
-    IMAGE_SIZE_X = 91  # 每张小图片的大小
-    IMAGE_SIZE_Y = 92  # 每张小图片的大小
+
+    # IMAGE_SIZE_X = 91  # 每张小图片的大小
+    # IMAGE_SIZE_Y = 92  # 每张小图片的大小
+
+    IMAGE_SIZE_X = 273  # 每张小图片的大小
+    IMAGE_SIZE_Y = 276  # 每张小图片的大小
+
     IMAGE_ROW = 9  # 图片间隔，也就是合并成一张图后，一共有几行
     IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
-    space_x = 3
-    space_y = 3
-    margin_x = 25
-    margin_y = 5
+    # space_x = 3
+    # space_y = 3
+    # margin_x = 25
+    # margin_y = 5
+
+    space_x = 6
+    space_y = 6
+    margin_x = 120
+    margin_y = 70
+
     # 获取图片集地址下的所有图片名称
     image_names = [name for name in os.listdir(IMAGES_PATH) for item in IMAGES_FORMAT if os.path.splitext(name)[1] == item]
     # to_image = Image.new('RGB', ( (IMAGE_COLUMN*IMAGE_SIZE_X)+space_x*(IMAGE_COLUMN-1) , (IMAGE_ROW*IMAGE_SIZE_Y)+space_y*(IMAGE_ROW-1)) #创建一个新图
     
     # print(len(image_names))
 
-    image_width = 610
+    # image_width = 610
+    image_width = 1900
     image_height = int(image_width * pow(2, 0.5))
     random.shuffle(image_names)
     img_total_cnt = len(image_names)
@@ -143,7 +159,7 @@ if __name__ == "__main__":
     pdfPath = '1-200.pdf'
     # pdfPath = '201-600.pdf'
     imagePath = 'png'
-    pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
+    # pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
     image_compose()
 
     # rm png folder
