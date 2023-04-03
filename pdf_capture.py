@@ -2,31 +2,9 @@ import sys
 import fitz
 import os
 import datetime
+import random
 import PIL.Image as Image
 
- 
-def pyMuPDF_fitz(pdfPath, imagePath):
-    startTime_pdf2img = datetime.datetime.now()#开始时间
-    
-    pdfDoc = fitz.open(pdfPath)
-    for pg in range(pdfDoc.page_count):
-        print("-I- check page: ", pg)
-        page = pdfDoc[pg]
-        rotate = int(0)
-        # 每个尺寸的缩放系数为1.3，这将为我们生成分辨率提高2.6的图像。
-        # 此处若是不做设置，默认图片大小为：792X612, dpi=96
-        zoom_x = 1.33333333 #(1.33333333-->1056x816)   (2-->1584x1224)
-        zoom_y = 1.33333333
-        mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate)
-        pix = page.get_pixmap(matrix=mat, alpha=False)
-        
-        if not os.path.exists(imagePath):#判断存放图片的文件夹是否存在
-            os.makedirs(imagePath) # 若图片文件夹不存在就创建
-        
-        pix._writeIMG(imagePath+'/'+'images_%s.png' % pg)#将图片写入指定的文件夹内
-        
-    endTime_pdf2img = datetime.datetime.now()#结束时间
-    print('pdf2img时间=',(endTime_pdf2img - startTime_pdf2img).seconds)
  
 def pyMuPDF2_fitz(pdfPath, imagePath):
     pdfDoc = fitz.open(pdfPath) # open document
@@ -43,7 +21,7 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
 
         mp = rect.tl + (rect.bl - (0,75/zoom_x)) # 矩形区域    56=75/1.3333
         clip = fitz.Rect(mp, rect.br)            # 想要截取的区域
-        # print("rect:", rect)
+        print("rect:", rect)
         # print("clip:", clip)
         # print("mp:", mp)
         # print("rect.br:", rect.br)
@@ -63,6 +41,7 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
         y2 = y1 + (180-88)
         clip = fitz.Rect(x1, y1, x2, y2)            # golden for 1st word
 
+        j = 0
         for i in range(5):
             grid = 145
             x1 = 10
@@ -76,44 +55,49 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
                 os.makedirs(imagePath)
             # pix.writePNG(imagePath+'/'+'psReport_%s.png' % pg)# store image as a PNG
             pix.save(f'{imagePath}/{pg}_{i}.png')
-'''
-import PIL.Image as Image
-import os
- 
-IMAGES_PATH = 'E:\picture\新垣结衣\\'  # 图片集地址
-IMAGES_FORMAT = ['.jpg', '.JPG']  # 图片格式
-IMAGE_SIZE = 256  # 每张小图片的大小
-IMAGE_ROW = 4  # 图片间隔，也就是合并成一张图后，一共有几行
-IMAGE_COLUMN = 4  # 图片间隔，也就是合并成一张图后，一共有几列
-IMAGE_SAVE_PATH = 'E:\\picture\\新垣结衣\\final.jpg'  # 图片转换后的地址
- 
-# 获取图片集地址下的所有图片名称
-image_names = [name for name in os.listdir(IMAGES_PATH) for item in IMAGES_FORMAT if
-               os.path.splitext(name)[1] == item]
- 
-# 简单的对于参数的设定和实际图片集的大小进行数量判断
-if len(image_names) != IMAGE_ROW * IMAGE_COLUMN:
-    raise ValueError("合成图片的参数和要求的数量不能匹配！")
- 
-# 定义图像拼接函数
-def image_compose():
-    to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE, IMAGE_ROW * IMAGE_SIZE)) #创建一个新图
-    # 循环遍历，把每张图片按顺序粘贴到对应位置上
-    for y in range(1, IMAGE_ROW + 1):
-        for x in range(1, IMAGE_COLUMN + 1):
-            from_image = Image.open(IMAGES_PATH + image_names[IMAGE_COLUMN * (y - 1) + x - 1]).resize(
-                (IMAGE_SIZE, IMAGE_SIZE),Image.ANTIALIAS)
-            to_image.paste(from_image, ((x - 1) * IMAGE_SIZE, (y - 1) * IMAGE_SIZE))
-    return to_image.save(IMAGE_SAVE_PATH) # 保存新图
-image_compose() #调用函数
 
-'''
+   
+def image_compose():
+    IMAGES_PATH = imagePath
+    IMAGES_FORMAT = ['.png']  # 图片格式
+    IMAGE_SIZE_X = 91  # 每张小图片的大小
+    IMAGE_SIZE_Y = 92  # 每张小图片的大小
+    IMAGE_ROW = 9  # 图片间隔，也就是合并成一张图后，一共有几行
+    IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
+    IMAGE_SAVE_PATH = 'final.jpg'  # 图片转换后的地址
+    space_x = 3
+    space_y = 3
+    margin_x = 25
+    margin_y = 5
+    # 获取图片集地址下的所有图片名称
+    image_names = [name for name in os.listdir(IMAGES_PATH) for item in IMAGES_FORMAT if os.path.splitext(name)[1] == item]
+    # to_image = Image.new('RGB', ( (IMAGE_COLUMN*IMAGE_SIZE_X)+space_x*(IMAGE_COLUMN-1) , (IMAGE_ROW*IMAGE_SIZE_Y)+space_y*(IMAGE_ROW-1)) #创建一个新图
+    
+    # print(len(image_names))
+
+    image_width = 610
+    image_height = int(image_width * pow(2, 0.5))
+    random.shuffle(image_names)
+    # print(image_names)
+
+    
+    to_image = Image.new('RGB', (image_width, image_height), "white")
+    img_cnt = 0
+    for y in range(IMAGE_ROW):
+        for x in range(IMAGE_COLUMN):
+            point_x = margin_x + x*IMAGE_SIZE_X + x*space_x 
+            point_y = margin_y + y*IMAGE_SIZE_Y + y*space_y
+            img_f = IMAGES_PATH + "/" + image_names[img_cnt] 
+            print("point_x: {:} point_y: {:}".format(point_x, point_y))
+            to_image.paste(Image.open(img_f), (point_x, point_y))
+            img_cnt += 1
+    return to_image.save(IMAGE_SAVE_PATH) # 保存新图
 
 
 
 if __name__ == "__main__":
-    # pdfPath = '1-200.pdf'
-    pdfPath = '201-600.pdf'
-    imagePath = 'jpeg'
-    #pyMuPDF_fitz(pdfPath, imagePath)#只是转换图片
-    pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
+    pdfPath = '1-200.pdf'
+    # pdfPath = '201-600.pdf'
+    imagePath = 'png'
+    # pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
+    image_compose()
