@@ -63,7 +63,6 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
             pix = page.get_pixmap(matrix=mat, alpha=False, clip=clip) # 将页面转换为图像
             if not os.path.exists(imagePath):
                 os.makedirs(imagePath)
-                
             # pix.writePNG(imagePath+'/'+'psReport_%s.png' % pg)# store image as a PNG
             pix.save(f'{imagePath}/{str(pg).zfill(3)}_{str(i).zfill(3)}.png')
             # str.zfill(8)
@@ -159,7 +158,7 @@ if __name__ == "__main__":
     pdfPath = '1-200.pdf'
     # pdfPath = '201-600.pdf'
     imagePath = 'png'
-    # pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
+    pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
     image_compose()
 
     # rm png folder
