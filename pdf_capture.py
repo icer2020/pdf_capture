@@ -4,10 +4,13 @@ import os
 import datetime
 import random
 import PIL.Image as Image
+import shutil # shutil全称是shell utilities
 
 
+# rm_temp_file = True ; # delete all intermedia file
+rm_temp_file = False ; # keep all intermedia file
 
- 
+
 def pyMuPDF2_fitz(pdfPath, imagePath):
     pdfDoc = fitz.open(pdfPath) # open document
     for pg in range(pdfDoc.page_count): # iterate through the pages
@@ -22,13 +25,13 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
         mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate) # 缩放系数1.3在每个维度  .prerotate(rotate)是执行一个旋转
         rect = page.rect                         # 页面大小
 
-        mp = rect.tl + (rect.bl - (0,75/zoom_x)) # 矩形区域    56=75/1.3333
-        clip = fitz.Rect(mp, rect.br)            # 想要截取的区域
+        # mp = rect.tl + (rect.bl - (0,75/zoom_x)) # 矩形区域    56=75/1.3333
+        # clip = fitz.Rect(mp, rect.br)            # 想要截取的区域
         # print("rect:", rect)
         # print("clip:", clip)
         # print("mp:", mp)
         # print("rect.br:", rect.br)
-        clip = rect
+        # clip = rect
         
         # clip = fitz.Rect(10, 88, 101, 180)            # golden for 1st word
         x1 = 10
@@ -56,6 +59,7 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
             pix = page.get_pixmap(matrix=mat, alpha=False, clip=clip) # 将页面转换为图像
             if not os.path.exists(imagePath):
                 os.makedirs(imagePath)
+                
             # pix.writePNG(imagePath+'/'+'psReport_%s.png' % pg)# store image as a PNG
             pix.save(f'{imagePath}/{str(pg).zfill(3)}_{str(i).zfill(3)}.png')
             # str.zfill(8)
@@ -85,10 +89,9 @@ def image_compose():
 
     # print(sorted(image_names))
 
-    
-
     img_cnt = 0
     index_cnt = 1
+    img_file_name = []
     while img_cnt<img_total_cnt:
         for y in range(IMAGE_ROW):
             for x in range(IMAGE_COLUMN):
@@ -97,6 +100,7 @@ def image_compose():
                     IMAGE_SAVE_PATH = 'final_' + str(index_cnt) + '.jpg'  # 图片转换后的地址
                 elif img_cnt % (IMAGE_ROW*IMAGE_COLUMN)==0:
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    img_file_name.append(IMAGE_SAVE_PATH)
                     print("IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
                     index_cnt += 1
                     to_image = Image.new('RGB', (image_width, image_height), "white")
@@ -112,13 +116,28 @@ def image_compose():
                     img_cnt += 1
                 else:
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    img_file_name.append(IMAGE_SAVE_PATH)
                     print("final save IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
                     break
             if img_cnt >= img_total_cnt:
                 break
     # return to_image.save(IMAGE_SAVE_PATH) # 保存新图
 
+    doc = fitz.open()
+    for img_file in img_file_name:
+        imgdoc = fitz.open(img_file)
+        pdfbytes = imgdoc.convert_to_pdf()
+        pdf_name = str(img_file) + '.pdf'
+        imgpdf = fitz.open(pdf_name, pdfbytes)
+        doc.insert_pdf(imgpdf)
+    doc.save('combined.pdf')
+    doc.close()
 
+    # delete final_*.jpg
+    if rm_temp_file:
+        for img_file in img_file_name:
+            os.remove(img_file)
+    
 
 if __name__ == "__main__":
     pdfPath = '1-200.pdf'
@@ -126,3 +145,7 @@ if __name__ == "__main__":
     imagePath = 'png'
     pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
     image_compose()
+
+    # rm png folder
+    if rm_temp_file:
+        shutil.rmtree(imagePath)
