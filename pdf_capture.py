@@ -9,7 +9,8 @@ import PIL.Image as Image
 def pyMuPDF2_fitz(pdfPath, imagePath):
     pdfDoc = fitz.open(pdfPath) # open document
     for pg in range(pdfDoc.page_count): # iterate through the pages
-        print("-I- check page: ", pg)
+        if pg % 10 ==0:
+            print("-I- check page: ", pg)
         page = pdfDoc[pg]
         rotate = int(0)
         # 每个尺寸的缩放系数为1.3，这将为我们生成分辨率提高2.6的图像
@@ -21,7 +22,7 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
 
         mp = rect.tl + (rect.bl - (0,75/zoom_x)) # 矩形区域    56=75/1.3333
         clip = fitz.Rect(mp, rect.br)            # 想要截取的区域
-        print("rect:", rect)
+        # print("rect:", rect)
         # print("clip:", clip)
         # print("mp:", mp)
         # print("rect.br:", rect.br)
@@ -77,10 +78,10 @@ def image_compose():
 
     image_width = 610
     image_height = int(image_width * pow(2, 0.5))
-    # random.shuffle(image_names)
+    random.shuffle(image_names)
     img_total_cnt = len(image_names)
 
-    print(sorted(image_names))
+    # print(sorted(image_names))
 
     
 
@@ -111,6 +112,8 @@ def image_compose():
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
                     print("final save IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
                     break
+            if img_cnt >= img_total_cnt:
+                break
     # return to_image.save(IMAGE_SAVE_PATH) # 保存新图
 
 
