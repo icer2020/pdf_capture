@@ -5,6 +5,8 @@ import datetime
 import random
 import PIL.Image as Image
 
+
+
  
 def pyMuPDF2_fitz(pdfPath, imagePath):
     pdfDoc = fitz.open(pdfPath) # open document
