@@ -54,7 +54,8 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
             if not os.path.exists(imagePath):
                 os.makedirs(imagePath)
             # pix.writePNG(imagePath+'/'+'psReport_%s.png' % pg)# store image as a PNG
-            pix.save(f'{imagePath}/{pg}_{i}.png')
+            pix.save(f'{imagePath}/{str(pg).zfill(3)}_{str(i).zfill(3)}.png')
+            # str.zfill(8)
 
    
 def image_compose():
@@ -64,7 +65,6 @@ def image_compose():
     IMAGE_SIZE_Y = 92  # 每张小图片的大小
     IMAGE_ROW = 9  # 图片间隔，也就是合并成一张图后，一共有几行
     IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
-    IMAGE_SAVE_PATH = 'final.jpg'  # 图片转换后的地址
     space_x = 3
     space_y = 3
     margin_x = 25
@@ -77,21 +77,41 @@ def image_compose():
 
     image_width = 610
     image_height = int(image_width * pow(2, 0.5))
-    random.shuffle(image_names)
-    # print(image_names)
+    # random.shuffle(image_names)
+    img_total_cnt = len(image_names)
+
+    print(sorted(image_names))
 
     
-    to_image = Image.new('RGB', (image_width, image_height), "white")
+
     img_cnt = 0
-    for y in range(IMAGE_ROW):
-        for x in range(IMAGE_COLUMN):
-            point_x = margin_x + x*IMAGE_SIZE_X + x*space_x 
-            point_y = margin_y + y*IMAGE_SIZE_Y + y*space_y
-            img_f = IMAGES_PATH + "/" + image_names[img_cnt] 
-            print("point_x: {:} point_y: {:}".format(point_x, point_y))
-            to_image.paste(Image.open(img_f), (point_x, point_y))
-            img_cnt += 1
-    return to_image.save(IMAGE_SAVE_PATH) # 保存新图
+    index_cnt = 1
+    while img_cnt<img_total_cnt:
+        for y in range(IMAGE_ROW):
+            for x in range(IMAGE_COLUMN):
+                if img_cnt ==0:
+                    to_image = Image.new('RGB', (image_width, image_height), "white")
+                    IMAGE_SAVE_PATH = 'final_' + str(index_cnt) + '.jpg'  # 图片转换后的地址
+                elif img_cnt % (IMAGE_ROW*IMAGE_COLUMN)==0:
+                    to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    print("IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
+                    index_cnt += 1
+                    to_image = Image.new('RGB', (image_width, image_height), "white")
+                    IMAGE_SAVE_PATH = 'final_' + str(index_cnt) + '.jpg'  # 图片转换后的地址
+                point_x = margin_x + x*IMAGE_SIZE_X + x*space_x 
+                point_y = margin_y + y*IMAGE_SIZE_Y + y*space_y
+                # print("img_cnt:", img_cnt)
+                if img_cnt < img_total_cnt:
+                    img_f = IMAGES_PATH + "/" + image_names[img_cnt] 
+                    # print("img_f: ", img_f)
+                    # print("point_x: {:} point_y: {:}".format(point_x, point_y))
+                    to_image.paste(Image.open(img_f), (point_x, point_y))
+                    img_cnt += 1
+                else:
+                    to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    print("final save IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
+                    break
+    # return to_image.save(IMAGE_SAVE_PATH) # 保存新图
 
 
 
@@ -99,5 +119,5 @@ if __name__ == "__main__":
     pdfPath = '1-200.pdf'
     # pdfPath = '201-600.pdf'
     imagePath = 'png'
-    # pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
+    pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
     image_compose()
