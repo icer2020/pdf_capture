@@ -15,7 +15,8 @@ def seek_files(id1, name):
     return file_name
 
 
-file_name = seek_files("pdf", "pdf")
+# file_name = seek_files("pdf", "pdf")
+file_name = seek_files("20220610", "pdf")
 
 sum = 0
 file_price = dict()

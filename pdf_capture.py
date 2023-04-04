@@ -3,8 +3,12 @@ import fitz
 import os
 import datetime
 import random
-import PIL.Image as Image
+# import PIL.Image as Image
 import shutil # shutil全称是shell utilities
+import cv2
+from PIL import ImageFont, ImageDraw, Image
+import numpy as np
+
 
 
 # rm_temp_file = True ; # delete all intermedia file
@@ -76,7 +80,7 @@ def image_compose():
     # IMAGE_SIZE_Y = 92  # 每张小图片的大小
 
     IMAGE_SIZE_X = 273  # 每张小图片的大小
-    IMAGE_SIZE_Y = 276  # 每张小图片的大小
+    IMAGE_SIZE_Y = 273  # 每张小图片的大小
 
     IMAGE_ROW = 9  # 图片间隔，也就是合并成一张图后，一共有几行
     IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
@@ -101,6 +105,11 @@ def image_compose():
     image_height = int(image_width * pow(2, 0.5))
     random.shuffle(image_names)
     img_total_cnt = len(image_names)
+    if img_total_cnt % (IMAGE_COLUMN*IMAGE_ROW) == 0:
+        total_page = int(img_total_cnt/float(IMAGE_COLUMN*IMAGE_ROW))
+    else:
+        total_page = int(img_total_cnt/float(IMAGE_COLUMN*IMAGE_ROW)) + 1
+        
 
     # print(sorted(image_names))
 
@@ -115,6 +124,8 @@ def image_compose():
                     IMAGE_SAVE_PATH = 'final_' + str(index_cnt) + '.jpg'  # 图片转换后的地址
                 elif img_cnt % (IMAGE_ROW*IMAGE_COLUMN)==0:
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    p_page = "-" + str(index_cnt)+"/"+str(total_page) + "-"
+                    add_page(IMAGE_SAVE_PATH, p_page)
                     img_file_name.append(IMAGE_SAVE_PATH)
                     print("IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
                     index_cnt += 1
@@ -131,13 +142,15 @@ def image_compose():
                     img_cnt += 1
                 else:
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
+                    # add_page(IMAGE_SAVE_PATH, index_cnt-1)
+                    p_page = "-" + str(int(index_cnt-1))+"/"+str(total_page) + "-"
+                    add_page(IMAGE_SAVE_PATH, p_page)
                     img_file_name.append(IMAGE_SAVE_PATH)
                     print("final save IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
                     break
             if img_cnt >= img_total_cnt:
                 break
     # return to_image.save(IMAGE_SAVE_PATH) # 保存新图
-
     doc = fitz.open()
     for img_file in img_file_name:
         imgdoc = fitz.open(img_file)
@@ -153,6 +166,24 @@ def image_compose():
         for img_file in img_file_name:
             os.remove(img_file)
     
+def add_page(img_file, number):
+    #加载背景图片
+    bk_img = cv2.imread(img_file)
+    size = bk_img.shape
+    w = size[1] #宽度
+    h = size[0] #高度
+
+    #在图片上添加文字信息
+    # cv2.putText(bk_img, str(number), (int(size[1]/2),int(size[0]-20)), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,0), 3, cv2.LINE_AA)
+    cv2.putText(bk_img, str(number), (int(size[1]/2-80),int(size[0]-30)), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0,0,0), 3, cv2.LINE_AA)
+    # #显示图片
+    # cv2.imshow("add_text",bk_img)
+    # cv2.waitKey()
+    #保存图片
+    cv2.imwrite(img_file, bk_img)
+
+
+
 
 if __name__ == "__main__":
     pdfPath = '1-200.pdf'
@@ -164,3 +195,5 @@ if __name__ == "__main__":
     # rm png folder
     if rm_temp_file:
         shutil.rmtree(imagePath)
+
+
