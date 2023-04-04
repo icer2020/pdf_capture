@@ -1,15 +1,13 @@
-import sys
+# import sys
 import fitz
 import os
-import datetime
+# import datetime
 import random
-# import PIL.Image as Image
+import PIL.Image as Image
 import shutil # shutil全称是shell utilities
 import cv2
-from PIL import ImageFont, ImageDraw, Image
-import numpy as np
-
-
+# from PIL import ImageFont, ImageDraw, Image
+# import numpy as np
 
 # rm_temp_file = True ; # delete all intermedia file
 rm_temp_file = False ; # keep all intermedia file
@@ -189,11 +187,19 @@ if __name__ == "__main__":
     pdfPath = '1-200.pdf'
     # pdfPath = '201-600.pdf'
     imagePath = 'png'
+    print("-I- remove existing path:", imagePath)
+    if os.path.isdir(imagePath):
+        shutil.rmtree(imagePath)
+
+    print('-I- remove existing file: final_*.jpg', )
+    for root, dirs, files in os.walk('.'):
+        for fn in files:
+            if "final_" in fn and ".jpg" in fn:
+                os.remove(fn)
+
     pyMuPDF2_fitz(pdfPath, imagePath)#指定想要的区域转换成图片
     image_compose()
 
     # rm png folder
     if rm_temp_file:
         shutil.rmtree(imagePath)
-
-
