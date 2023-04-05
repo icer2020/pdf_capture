@@ -65,6 +65,7 @@ def pyMuPDF2_fitz(pdfPath, imagePath):
     # open pdf
     pdfDoc = fitz.open(pdfPath) 
     # iterate through the pages
+    ut.print_info("Analysis pdf file: ", args.in_file)
     for pg in range(pdfDoc.page_count): 
         if pg % 10 ==0:
             ut.print_info("Check page: ", pg)
@@ -207,6 +208,7 @@ if __name__ == "__main__":
     if args.keep_temp_file:
         shutil.rmtree(imagePath)
 
+    ut.print_info("Check resunts in file: ",args.out_file)
     ut.footer()
 
 
