@@ -141,7 +141,7 @@ def image_compose():
                 else:
                     to_image.save(IMAGE_SAVE_PATH) # 保存新图
                     # add_page(IMAGE_SAVE_PATH, index_cnt-1)
-                    p_page = "-" + str(int(index_cnt-1))+"/"+str(total_page) + "-"
+                    p_page = "-" + str(int(index_cnt))+"/"+str(total_page) + "-"
                     add_page(IMAGE_SAVE_PATH, p_page)
                     img_file_name.append(IMAGE_SAVE_PATH)
                     print("final save IMAGE_SAVE_PATH: {:} img_cnt: {:}".format(IMAGE_SAVE_PATH, img_cnt))
