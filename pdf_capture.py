@@ -1,16 +1,12 @@
-# import sys
 import fitz
 import os
-# import datetime
 import random
 import PIL.Image as Image
 import shutil # shutil全称是shell utilities
 import cv2
-# from PIL import ImageFont, ImageDraw, Image
-# import numpy as np
 
-# rm_temp_file = True ; # delete all intermedia file
-rm_temp_file = False ; # keep all intermedia file
+rm_temp_file = True ; # delete all intermedia file
+# rm_temp_file = False ; # keep all intermedia file
 
 
 def pyMuPDF2_fitz(pdfPath, imagePath):
@@ -186,6 +182,7 @@ def add_page(img_file, number):
 if __name__ == "__main__":
     pdfPath = '1-200.pdf'
     # pdfPath = '201-600.pdf'
+    # pdfPath = "601-1300.pdf"
     imagePath = 'png'
     print("-I- remove existing path:", imagePath)
     if os.path.isdir(imagePath):
