@@ -22,7 +22,7 @@ ut.starttime = time.time()
 
 # Version history
 ver = ut.ver = 'V0.1'
-ver_date = ut.ver_date = 'Apr. 6, 2022'
+ver_date = ut.ver_date = 'Apr. 6, 2023'
 ver_des = ut.ver_des = 'release version.'
 ver_detail_des = ut.ver_detail_des = ''' creete scritps '''
 scr_des = ut.scr_des = 'pick-up the fee from e-receipt'
