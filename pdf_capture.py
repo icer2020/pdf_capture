@@ -4,7 +4,7 @@
 @File          :   pdf_capture.py
 @Time          :   2023/04/05 21:14:28
 @Author        :   ICer
-@Version       :   0.1
+@Version       :   0.2
 @Contact       :   i_chip_backend@163.com
 @WebSite       :   https://blog.csdn.net/i_chip_backend
 @License       :   (C)Copyright 2018-2023, ICerDev
@@ -24,10 +24,13 @@ import utils as ut
 ut.starttime = time.time()
 
 # Version history
-ver = ut.ver = 'V0.1'
-ver_date = ut.ver_date = 'Apr. 05, 2023'
-ver_des = ut.ver_des = '1st release version.'
-ver_detail_des = ut.ver_detail_des = ''' scritps release '''
+ver = ut.ver = 'V0.2'
+ver_date = ut.ver_date = 'Apr. 08, 2023'
+ver_des = ut.ver_des = 'add feature'
+ver_detail_des = ut.ver_detail_des = '''
+1: add in_file out_file file permmition check
+2: support file_list for in_file 
+'''
 scr_des = ut.scr_des = 'PDF capture for combined word-card'
 scr_des_detail = '''
 Description: Translate HongEn basic-word PDF into word-only combined PDF for kid use
@@ -47,7 +50,7 @@ def parseargu():
         description=scr_des_detail, epilog=post_msg)
 
     parser.add_argument('-i', '--in_file', required=False,
-                        help='Input file',
+                        help='Input file or file list',
                         default='./1-200.pdf')
     parser.add_argument('-o', '--out_file', required=False,
                         help='Output file',
@@ -60,43 +63,60 @@ def parseargu():
     args_l = parser.parse_args()
     return args_l
 
+def check_file_exist(files):
+    f_err = list()
+    for f in files.split():
+        if not os.path.exists(f):
+            f_err.append(f)
+    if len(f_err) > 0:
+        return(f_err)
+    else:
+        return 1
+            
+
+
+
 
 def pyMuPDF2_fitz(pdfPath, imagePath):
     # open pdf
-    pdfDoc = fitz.open(pdfPath) 
+    total_pg = 0
     # iterate through the pages
-    ut.print_info("Analysis pdf file: ", args.in_file)
-    for pg in range(pdfDoc.page_count): 
-        if pg % 10 ==0:
-            ut.print_info("Check page: ", pg)
-        page = pdfDoc[pg]
-        rotate = int(0)
-        # PDF zoom ratio
-        zoom_x = 3
-        zoom_y = 3
+    for f in pdfPath.split():
+        ut.print_info("Analysis pdf file: ", f)
+        pdfDoc = fitz.open(f) 
+        for pg in range(pdfDoc.page_count): 
+            if pg % 10 ==0:
+                ut.print_info("Check page: ", pg)
+            page = pdfDoc[pg]
+            rotate = int(0)
+            # PDF zoom ratio
+            zoom_x = 3
+            zoom_y = 3
 
-        mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate)
-        rect = page.rect
+            mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate)
+            rect = page.rect
 
-        grid = 145
-        x1 = 10
-        x2 = x1 + 91
-        y1 = 88 + grid
-        y2 = y1 + (180-88)
-        clip = fitz.Rect(x1, y1, x2, y2)
-
-        j = 0
-        for i in range(5):
             grid = 145
             x1 = 10
             x2 = x1 + 91
-            y1 = 88 + grid*i
+            y1 = 88 + grid
             y2 = y1 + (180-88)
             clip = fitz.Rect(x1, y1, x2, y2)
-            pix = page.get_pixmap(matrix=mat, alpha=False, clip=clip)
-            if not os.path.exists(imagePath):
-                os.makedirs(imagePath)
-            pix.save(f'{imagePath}/{str(pg).zfill(3)}_{str(i).zfill(3)}.png')
+
+            j = 0
+            for i in range(5):
+                grid = 145
+                x1 = 10
+                x2 = x1 + 91
+                y1 = 88 + grid*i
+                y2 = y1 + (180-88)
+                clip = fitz.Rect(x1, y1, x2, y2)
+                pix = page.get_pixmap(matrix=mat, alpha=False, clip=clip)
+                if not os.path.exists(imagePath):
+                    os.makedirs(imagePath)
+                # pix.save(f'{imagePath}/{str(pg).zfill(3)}_{str(i).zfill(3)}.png')
+                pix.save(f'{imagePath}/{str(pg+total_pg).zfill(3)}_{str(i).zfill(3)}.png')
+        total_pg = pdfDoc.page_count + total_pg
 
 def image_compose():
     IMAGES_PATH = imagePath
@@ -168,6 +188,7 @@ def image_compose():
     if args.keep_temp_file:
         for img_file in img_file_name:
             os.remove(img_file)
+    return total_page
     
 def add_page(img_file, number):
     bk_img = cv2.imread(img_file)
@@ -201,14 +222,23 @@ if __name__ == "__main__":
         for fn in files:
             if "final_" in fn and ".jpg" in fn:
                 os.remove(fn)
-    pyMuPDF2_fitz(args.in_file, imagePath)
-    image_compose()
+    if check_file_exist(args.in_file) == 1:
+        try:
+            os.remove(args.out_file)
+        except:
+            ut.print_error("Out file {:} is occupy (or not-writable). Please check and re-run".format(args.out_file))
+            quit(1)
+        pyMuPDF2_fitz(args.in_file, imagePath)
+        pdf_pg_cnt = image_compose()
+    else:
+        ut.print_error("Input file {:} is(are) not exists".format(check_file_exist(args.in_file)))
+        quit(0)
 
     # rm png folder
     if args.keep_temp_file:
         shutil.rmtree(imagePath)
 
-    ut.print_info("Check resunts in file: ",args.out_file)
+    ut.print_info("Check resunts in file: {:} with page {:}".format(args.out_file, pdf_pg_cnt))
     ut.footer()
 
 
