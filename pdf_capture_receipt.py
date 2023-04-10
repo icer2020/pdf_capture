@@ -112,7 +112,7 @@ def main_run():
     
     fo_sum.close()
     
-    ut.print_info("Total {:} file(s) are parse. Total fee are {:}. Detail is in file: {:}".format(len(file_price.keys()), sum, fo_file))
+    ut.print_info("总计发票数量：{:} 费用总计：{:} Detail is in file: {:}".format(len(file_price.keys()), sum, fo_file))
 
 
 # ------------------------------------------------------------
