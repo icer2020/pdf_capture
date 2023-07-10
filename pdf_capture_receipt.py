@@ -16,6 +16,7 @@ import utils as ut
 import sys
 import camelot.io as camelot
 import os
+import re
 
 sys.path.append('.')
 ut.starttime = time.time()
@@ -76,11 +77,13 @@ def main_run():
         ut.print_info("Parse file:", receipt)
         tables = camelot.read_pdf(receipt, shift_text=[''], strip_text='\n')
         table = tables[0].df 
+        # print('df', tables[0].df)
         if len(table.columns) == 6:
             clm = len(table.columns) - 1 
         else:
             clm = len(table.columns) - 2 
         price = table[clm][2][1:]
+
         try:
             price = float(price)
         except:
@@ -91,6 +94,14 @@ def main_run():
         except:
             ut.print_error("File {:} price is not float/int please check".format(receipt))
     
+        if not (isinstance(price, float)):
+            print('-I-: {:} is new e-receipt format'.format(receipt)) 
+            # print('dfp[0]', tables[0].df[3][2])
+            price = float(re.findall(r"\d+\.?\d*",tables[0].df[3][2])[0])
+            if not (isinstance(price, float)):
+                print("-E-: not find float price in pdf file: " )
+
+
         sum += float(price)
         file_price[receipt] = price
     
