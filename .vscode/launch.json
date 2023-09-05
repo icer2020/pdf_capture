@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "program": "D:/01_personal/06_python/pdf_capture/pdf_capture_receipt.py",
+            "justMyCode": false,
+            "args": ["-f", "3.pdf"]
+        }
+    ]
+}
