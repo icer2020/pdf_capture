@@ -92,14 +92,13 @@ def main_run():
         try:
             price = float(price)
         except:
-            ut.print_error("File {:} price is not float/int please check".format(receipt))
-    
-        if not (isinstance(price, float)):
-            print('-I-: {:} is new e-receipt format'.format(receipt)) 
-            # print('dfp[0]', tables[0].df[3][2])
-            price = float(re.findall(r"\d+\.?\d*",tables[0].df[3][2])[0])
             if not (isinstance(price, float)):
-                print("-E-: not find float price in pdf file: " )
+                ut.print_info('{:} is new e-receipt format'.format(receipt)) 
+                # print('dfp[0]', tables[0].df[3][2])
+                price = float(re.findall(r"\d+\.?\d*",tables[0].df[3][2])[0])
+                if not (isinstance(price, float)):
+                    ut.print_error("Not find float/int price in pdf \
+                                    file")
 
 
         sum += float(price)
