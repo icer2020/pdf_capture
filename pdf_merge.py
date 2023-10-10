@@ -1,4 +1,4 @@
- #!/usr/bin/python3 -u
+#!/usr/bin/python3 -u
 # -*- encoding: utf-8 -*-
 '''
 @File          :   pdf_merge.py
@@ -13,10 +13,6 @@
 import argparse
 import time
 import utils as ut
-import sys
-import camelot.io as camelot
-import os
-import re
 import sys
 from PyPDF2 import PdfMerger
 
@@ -33,6 +29,7 @@ scr_des_detail = '''
 Description: merge PDF file into one file
 '''
 
+
 # ------------------------------------------------------------
 # function section
 # ------------------------------------------------------------
@@ -45,8 +42,10 @@ def parseargu():
         formatter_class=argparse.RawTextHelpFormatter,
         description=scr_des_detail, epilog=post_msg)
 
-    parser.add_argument('-f', '--infile', type=str, required=True, help='input PDF file(s) with ORDER for merge.')
-    parser.add_argument('-o', '--outfile', type=str, required=False, default="merged.pdf", help='folder save PDF file(s)')
+    parser.add_argument('-f', '--infile', type=str, required=True, help='input\
+                        PDF file(s) with ORDER for merge.')
+    parser.add_argument('-o', '--outfile', type=str, required=False, default="\
+                        merged.pdf", help='folder save PDF file(s)')
     parser.add_argument('-sta', '--status', type=str, choices=['RUN', 'DEBUG'],
                         help=argparse.SUPPRESS)
     return parser.parse_args()
@@ -58,14 +57,15 @@ def main_run():
     for f in args.infile.split():
         merger.append(f)
     merger.write(str(args.outfile))
-    ut.print_info(f"All PDF files merged info file: {args.outfile}")
+    ut.print_info(f"All PDF files merged into file: {args.outfile}")
 
- 
+
 # ------------------------------------------------------------
 # Running  main
 # ------------------------------------------------------------
 if __name__ == '__main__':
-    # run status:  'DEBUG' || 'INFO' || 'WARNING' || 'ERROR' || 'CRITICAL' || 'RUN':
+    # run status:  'DEBUG' || 'INFO' || 'WARNING' || 'ERROR' || 'CRITICAL' ||
+    # 'RUN':
     ut.RUN_STATUS = 'RUN'
 
     # additional meg in header for current scripts
@@ -75,4 +75,3 @@ if __name__ == '__main__':
 
     main_run()
     ut.footer()
-
