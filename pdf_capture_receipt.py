@@ -46,6 +46,8 @@ def parseargu():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-f', '--file', type=str, help='input PDF file(s)')
     group.add_argument('-p', '--path', type=str, help='folder save PDF file(s)')
+    parser.add_argument('-v', '--verbose', action='store_true', required=False,
+                        help='run in verbose mode')
     parser.add_argument('-sta', '--status', type=str, choices=['RUN', 'DEBUG'],
                         help=argparse.SUPPRESS)
     return parser.parse_args()
@@ -93,7 +95,8 @@ def main_run():
             price = float(price)
         except:
             if not (isinstance(price, float)):
-                ut.print_info('{:} is new e-receipt format'.format(receipt)) 
+                if args.verbose is True:
+                    ut.print_info('{:} is new e-receipt format'.format(receipt)) 
                 # print('dfp[0]', tables[0].df[3][2])
                 price = float(re.findall(r"\d+\.?\d*",tables[0].df[3][2])[0])
                 if not (isinstance(price, float)):
