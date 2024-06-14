@@ -102,15 +102,22 @@ def main_run():
 
     grid = int(args.grid)
 
-    off = 0
+    cnt = 0
     for i in range(s-1, e, grid):
-        fo = args.output_folder + os.sep + re.sub('\.pdf', "", args.input) + "_" + str(i) + "_" + str(i+grid) + ".pdf"
+        if i +grid > pages:
+            grid = pages - i
+        cnt += 1
+        fo = args.output_folder + os.sep + re.sub('\.pdf', "", args.input) + "_part" + str(cnt).zfill(2) + "_" + str(i+1) + "_" + str(i+grid) + ".pdf"
+        pdf_output = PdfWriter()
         for j in range(i, i+grid):
-            j = pages -1 if  j > pages-1 else j
+            # j = pages -1 if  j > pages-1 else j
             pdf_output.add_page(pdf_input.pages[j])
         with open(fo, 'wb') as pdf_out:
             pdf_output.write(pdf_out)
-        ut.print_info(f'PDF split {i} saveas into file: {fo}')
+        ut.print_info(f'PDF pages {str(i+1)} to {str(i+grid)} saveas into file: {fo} (pages: {grid})')
+
+    
+    ut.print_info(f'Total PDF {cnt} split file(s) saved)')
 
     # 4. 把3到4页放到PDF文件编写器
     # for i in range(s-1, e):
