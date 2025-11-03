@@ -3,10 +3,47 @@ from spire.pdf import PdfTextExtractOptions
 from spire.pdf import PdfTextExtractor
 
 import subprocess
+import os
 
-cmd = 'ls *pdf'
-p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+# cmd = 'ls *pdf'
+if len(os.sys.argv) < 3:
+    print("Usage: sys.argv[0] pdf_in_file txt_out_file ")
+    exit(0)
+pdf_f = os.sys.argv[1]
+txt_f = os.sys.argv[2]
+# p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 # for i in p.stdout.readline().decode("gbk",  "ignore"):
+
+print(f'-I- {pdf_f} save into {txt_f}')
+
+pdf = PdfDocument()
+pdf.LoadFromFile(pdf_f)
+
+# 创建一个字符串对象来存储文本
+extracted_text = ""
+
+# 创建PdfExtractor对象
+extract_options = PdfTextExtractOptions()
+
+# 循环遍历文档中的页面
+for i in range(pdf.Pages.Count):
+    # 获取页面
+    page = pdf.Pages.get_Item(i)
+    # 创建PdfTextExtractor对象，并将页面作为参数传递
+    text_extractor = PdfTextExtractor(page)
+    # 从页面中提取文本
+    text = text_extractor.ExtractText(extract_options)
+    # 将提取的文本添加到字符串对象中
+    extracted_text += text
+
+# 将提取的文本写入文本文件
+# with open("1.txt", "w") as file:
+with open(txt_f, "w", encoding='utf-8') as file:
+    file.write(extracted_text)
+pdf.Close()
+
+
+'''
 for i in p.stdout.readlines():
     pdf_f_p=str(i.decode("gbk",  "ignore").strip())
     txt_f_p=pdf_f_p.replace('.pdf','.txt')
@@ -41,4 +78,4 @@ for i in p.stdout.readlines():
     with open(txt_f, "w") as file:
         file.write(extracted_text)
     pdf.Close()
-
+'''
