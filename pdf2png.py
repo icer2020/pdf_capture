@@ -14,12 +14,15 @@
 
 import datetime
 import os
+import sys
 
 import fitz  # fitz就是pip install PyMuPDF
 
 
 def pyMuPDF_fitz(pdfPath, imagePath):
     startTime_pdf2img = datetime.datetime.now()  # 开始时间
+    # os.removedirs(imagePath) 
+    # os.mkdif(imagePath)
 
     print("imagePath=" + imagePath)
     pdfDoc = fitz.open(pdfPath)
@@ -29,8 +32,13 @@ def pyMuPDF_fitz(pdfPath, imagePath):
         rotate = int(0)
         # 每个尺寸的缩放系数为1.3，这将为我们生成分辨率提高2.6的图像。
         # 此处若是不做设置，默认图片大小为：792X612, dpi=96
-        zoom_x = 1.33333333  # (1.33333333-->1056x816)   (2-->1584x1224)
-        zoom_y = 1.33333333
+        # zoom_x = 1.33333333  # (1.33333333-->1056x816)   (2-->1584x1224)
+        # zoom_y = 1.33333333
+
+
+        zoom_x = 0.5
+        zoom_y = 0.5
+
         # mat = fitz.Matrix(zoom_x, zoom_y).preRotate(rotate)
         mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate)
         # pix = page.getPixmap(matrix=mat, alpha=False)
@@ -40,7 +48,8 @@ def pyMuPDF_fitz(pdfPath, imagePath):
             os.makedirs(imagePath)  # 若图片文件夹不存在就创建
 
         # pix.writePNG(imagePath + '/' + 'images_%s.png' % pg)  # 将图片写入指定的文件夹内
-        pix._writeIMG(imagePath + '/' + 'images_%s.png' % pg, 1, 'ultra_high')  # 将图片写入指定的文件夹内
+        # pix._writeIMG(imagePath + '/' + 'images_%s.png' % pg, 1, 'ultra_high')  # 将图片写入指定的文件夹内
+        pix._writeIMG(imagePath + '/' + 'images_%s.png' % pg, 1)  # 将图片写入指定的文件夹内
 
     endTime_pdf2img = datetime.datetime.now()  # 结束时间
     print('pdf2img时间=', (endTime_pdf2img - startTime_pdf2img).seconds)
@@ -48,9 +57,10 @@ def pyMuPDF_fitz(pdfPath, imagePath):
 
 if __name__ == "__main__":
     # 1、PDF地址
-    pdfPath = '1.pdf'
+    # pdfPath = '1.pdf'
+    pdfPath = sys.argv[1]
     # 2、需要储存图片的目录
-    imagePath = './imgs'
+    imagePath = 'imgs'
     pyMuPDF_fitz(pdfPath, imagePath)
 
 
