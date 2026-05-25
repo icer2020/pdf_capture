@@ -108,42 +108,57 @@ class PDFToolbox:
                 page.artbox = rect
 
         all_page = PdfWriter()
-        with open(input_file, 'rb') as fp:
-            reader1 = PdfReader(fp)
-            for i in range(len(reader1.pages)):
-                rect = reader1.pages[i].cropbox
-                x0, y0, x1, y1 = rect
-                ut.print_info(f'Page {i}: {rect.width:.0f}x{rect.height:.0f}')
+        mapping = []
+        with open(input_file, 'rb') as fp1:
+            r1 = PdfReader(fp1)
+            with open(input_file, 'rb') as fp2:
+                r2 = PdfReader(fp2)
+                for i in range(len(r1.pages)):
+                    rect = r1.pages[i].cropbox
+                    x0, y0, x1, y1 = rect
+                    ut.print_info(f'Page {i}: {rect.width:.0f}x{rect.height:.0f}')
 
-                if horizontal:
-                    mid_y = (y0 + y1) / 2
-                    half = RectangleObject((x0, y0, x1, mid_y))
-                else:
                     mid_x = (x0 + x1) / 2
-                    half = RectangleObject((x0, y0, mid_x, y1))
-
-                set_page_boxes(reader1.pages[i], half)
-                all_page.add_page(reader1.pages[i])
-
-        with open(input_file, 'rb') as fp:
-            reader2 = PdfReader(fp)
-            for i in range(len(reader2.pages)):
-                rect = reader2.pages[i].cropbox
-                x0, y0, x1, y1 = rect
-
-                if horizontal:
                     mid_y = (y0 + y1) / 2
-                    half = RectangleObject((x0, mid_y, x1, y1))
-                else:
-                    mid_x = (x0 + x1) / 2
-                    half = RectangleObject((mid_x, y0, x1, y1))
 
-                set_page_boxes(reader2.pages[i], half)
-                all_page.add_page(reader2.pages[i])
+                    r = r1.pages[i].get('/Rotate', 0) or 0
+                    if r in (90, 270):
+                        if horizontal:
+                            rect_first = RectangleObject((mid_x, y0, x1, y1))
+                            rect_second = RectangleObject((x0, y0, mid_x, y1))
+                            lbl_first = 'Top half'
+                            lbl_second = 'Bottom half'
+                        else:
+                            rect_first = RectangleObject((x0, y0, x1, mid_y))
+                            rect_second = RectangleObject((x0, mid_y, x1, y1))
+                            lbl_first = 'Left half'
+                            lbl_second = 'Right half'
+                    else:
+                        if horizontal:
+                            rect_first = RectangleObject((x0, mid_y, x1, y1))
+                            rect_second = RectangleObject((x0, y0, x1, mid_y))
+                            lbl_first = 'Top half'
+                            lbl_second = 'Bottom half'
+                        else:
+                            rect_first = RectangleObject((x0, y0, mid_x, y1))
+                            rect_second = RectangleObject((mid_x, y0, x1, y1))
+                            lbl_first = 'Left half'
+                            lbl_second = 'Right half'
+
+                    pn = i + 1
+                    set_page_boxes(r1.pages[i], rect_first)
+                    all_page.add_page(r1.pages[i])
+                    mapping.append((len(all_page.pages), pn, lbl_first))
+                    set_page_boxes(r2.pages[i], rect_second)
+                    all_page.add_page(r2.pages[i])
+                    mapping.append((len(all_page.pages), pn, lbl_second))
 
         with open(output_file, 'wb') as fo:
             all_page.write(fo)
         ut.print_info(f'Page-cut PDF saved: {output_file}')
+        ut.print_info('Page-cut mapping:')
+        for out_pn, src_pn, label in mapping:
+            ut.print_info(f'  Output Page {out_pn} = Page {src_pn} → {label}')
 
     @staticmethod
     def to_png(input_file, output_dir, zoom=0.5):
