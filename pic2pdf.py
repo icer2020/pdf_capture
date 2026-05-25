@@ -14,7 +14,7 @@
 
 from PIL import Image
 import sys
-# print(sys.argv)
+# # print(sys.argv)
 print(f"usage: {sys.argv[0]} 1.jpg 2.jpg")
 pdf_f = "output.pdf"
 # image_paths = ['1.jpg', '2.jpg']
