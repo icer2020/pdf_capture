@@ -1,0 +1,8 @@
+# PDF Toolbox dependencies
+# install: pip install -r requirements.txt
+
+PyMuPDF>=1.27.0
+camelot-py>=1.0.0
+opencv-python>=4.13.0
+pypdf>=5.0.0
+pillow>=12.0.0
