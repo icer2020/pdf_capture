@@ -188,6 +188,7 @@ class PDFToolbox:
     @staticmethod
     def images_to_pdf(image_paths, output_file):
         images = [Image.open(img).convert('RGB') for img in image_paths]
+        Image.init()
         images[0].save(output_file, save_all=True, append_images=images[1:])
         ut.print_info(f'PDF saved: {output_file}')
 
